@@ -120,6 +120,13 @@ http.get({host:'localhost', path: '/healthcheck', port: '3000'}, (res) => {
 docker build -t mynodeapp .
 ```
 
+**Build the Docker Image by Stages**
+
+```bash
+docker build --target development -t mynodeapp .
+docker build --target production -t mynodeapp .
+```
+
 **Run the Docker Container:**
 ```bash
 docker run -p 3000:3000 mynodeapp
