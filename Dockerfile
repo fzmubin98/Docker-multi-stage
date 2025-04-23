@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM node:16 as builder
+FROM node:16 AS builder
 
 # Set a working directory
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production
-FROM node:16-alpine as production
+FROM node:16-alpine AS production
 
 ENV NODE_ENV=production
 
