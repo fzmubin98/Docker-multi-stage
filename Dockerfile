@@ -1,5 +1,5 @@
 # Stage 1: Builder
-FROM node:16 AS builder
+FROM node:16 as builder
 
 # Set a working directory
 WORKDIR /app
@@ -16,8 +16,27 @@ COPY . .
 # Build the application
 RUN npm run build
 
+# Stage 2: Development
+# This is used primarily during development. It can be invoked by building with --target development
+FROM node:16 AS development
+
+# Set working directory
+WORKDIR /app
+
+# Copy over from builder all files including node_modules and built assets
+COPY --from=builder /app ./
+
+# Set the NODE_ENV environment variable to 'development'
+ENV NODE_ENV=development
+
+# Expose port 3000 for the development server
+EXPOSE 3000
+
+# Run the development server
+CMD ["npm", "run", "dev"]
+
 # Stage 2: Production
-FROM node:16-alpine AS production
+FROM node:16-alpine as production
 
 ENV NODE_ENV=production
 
