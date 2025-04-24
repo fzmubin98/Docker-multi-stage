@@ -3,7 +3,8 @@ const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  const message = process.env.NODE_ENV === 'development' ? 'Hello dev!' : 'Hello World!';
+  res.send(message);
 });
 
 // Health check route
@@ -15,4 +16,4 @@ app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 
-module.exports = app; // Export for testing
+module.exports = app;
