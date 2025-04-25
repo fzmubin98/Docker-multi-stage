@@ -77,6 +77,39 @@ USER appuser
 CMD ["npm", "start"]
 ```
 
+**Docker Compose**
+
+Development:
+```
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+```
+
+Production:
+```
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      target: production
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=production
+```
+
 ### 2. Node.js Application Setup
 
 A basic Express application serves as the backend.
