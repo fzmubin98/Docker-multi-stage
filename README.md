@@ -144,8 +144,8 @@ docker build -t mynodeapp .
 **Build the Docker Image by Stages**
 
 ```bash
-docker build --target development -t mynodeapp .
-docker build --target production -t mynodeapp .
+docker-compose -f docker-compose.dev.yml up --build -d
+docker-compose -f docker-compose.prod.yml up --build -d
 ```
 
 **Run the Docker Container:**

@@ -5,10 +5,13 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "node app.js",
+    "dev": "nodemon app.js",
     "build": "echo 'Build step (no compilation needed for this app)'"
   },
   "dependencies": {
     "express": "^4.17.1"
+  },
+  "devDependencies": {
+  "nodemon": "^3.0.1"
   }
 }
