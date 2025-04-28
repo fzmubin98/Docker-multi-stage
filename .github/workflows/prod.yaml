@@ -17,7 +17,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build Prod Docker Compose
-      run: docker-compose -f docker-compose.prod.yml build
+      run: docker compose -f docker-compose.prod.yml build
 
     - name: SSH into EC2 and Deploy
       uses: appleboy/ssh-action@v1.0.3
@@ -28,5 +28,5 @@ jobs:
         script: |
           cd /home/ubuntu/your-app-folder
           git pull origin main
-          docker-compose -f docker-compose.prod.yml down
-          docker-compose -f docker-compose.prod.yml up --build -d
+          docker compose -f docker-compose.prod.yml down
+          docker compose -f docker-compose.prod.yml up --build -d
