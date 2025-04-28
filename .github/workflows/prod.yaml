@@ -1,0 +1,32 @@
+name: Deploy to Production EC2
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Prod
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Prod Docker Compose
+      run: docker-compose -f docker-compose.prod.yml build
+
+    - name: SSH into EC2 and Deploy
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.PROD_EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/your-app-folder
+          git pull origin main
+          docker-compose -f docker-compose.prod.yml down
+          docker-compose -f docker-compose.prod.yml up --build -d
