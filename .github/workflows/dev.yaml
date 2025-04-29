@@ -31,5 +31,4 @@ jobs:
             cd Docker-multi-stage
             sudo docker compose -f docker-compose.dev.yml down
             sudo docker compose -f docker-compose.dev.yml up --build -d
-            sudo docker run -p 3000:3000 mynodeapp
           EOF
