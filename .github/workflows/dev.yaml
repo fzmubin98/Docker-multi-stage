@@ -27,9 +27,10 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          ls -la
-          rm -rf Docker-multi-stage
-          git clone https://github.com/fzmubin98/Docker-multi-stage.git
-          cd Docker-multi-stage
-          docker compose -f docker-compose.dev.yml down
-          docker compose -f docker-compose.dev.yml up --build -d
+          sudo ls -la
+          sudo rm -rf Docker-multi-stage
+          sudo git clone https://github.com/fzmubin98/Docker-multi-stage.git
+          sudo cd Docker-multi-stage
+          sudo docker compose -f docker-compose.dev.yml down
+          sudo docker compose -f docker-compose.dev.yml up --build -d
+          sudo docker run -p 3000:3000 mynodeapp
