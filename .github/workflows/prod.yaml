@@ -1,12 +1,11 @@
-name: Deploy to Production EC2
+name: Deploy to Development EC2
 
 on:
   workflow_dispatch:
 
-
 jobs:
   build-and-deploy:
-    name: Build and Deploy Prod
+    name: Build and Deploy Dev
     runs-on: ubuntu-latest
 
     steps:
@@ -16,13 +15,13 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build Prod Docker Compose
-      run: docker compose -f docker-compose.prod.yml build
+    - name: Build Dev Docker Compose
+      run: docker compose -f docker-compose.dev.yml build
 
     - name: SSH into EC2 and Deploy
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ secrets.PROD_EC2_HOST }}
+        host: ${{ secrets.DEV_EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
@@ -30,5 +29,5 @@ jobs:
           rm -rf Docker-multi-stage
           git clone https://github.com/fzmubin98/Docker-multi-stage.git
           cd Docker-multi-stage
-          docker compose -f docker-compose.prod.yml down
-          docker compose -f docker-compose.prod.yml up --build -d
+          docker compose -f docker-compose.dev.yml down
+          docker compose -f docker-compose.dev.yml up --build -d
