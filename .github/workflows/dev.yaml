@@ -22,11 +22,11 @@ jobs:
 
     - name: SSH into EC2 and Deploy
       uses: actions/checkout@v2
-      with:
-        host: ${{ secrets.DEV_EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
+      env:
+        HOSTNAME: ${{ secrets.DEV_EC2_HOST }}
+        USER_NAME: ${{ secrets.EC2_USER }}
+        PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
           sudo ls -la
           sudo rm -rf Docker-multi-stage
           sudo git clone https://github.com/fzmubin98/Docker-multi-stage.git
