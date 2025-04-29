@@ -1,4 +1,4 @@
-name: Deploy to Development EC2
+name: Deploy to Production EC2
 
 on:
   workflow_dispatch:
@@ -16,18 +16,17 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build Dev Docker Compose
-      run: docker compose -f docker-compose.dev.yml build
+      run: docker compose -f docker-compose.prod.yml build
 
     - name: SSH into EC2 and Deploy
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.PROD_EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          ls -la
-          rm -rf Docker-multi-stage
-          git clone https://github.com/fzmubin98/Docker-multi-stage.git
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.PROD_EC2_HOST }} << 'EOF'
+          sudo ls -la
+          sudo rm -rf Docker-multi-stage
+          sudo git clone https://github.com/fzmubin98/Docker-multi-stage.git
           cd Docker-multi-stage
-          docker compose -f docker-compose.dev.yml down
-          docker compose -f docker-compose.dev.yml up --build -d
+          sudo docker compose -f docker-compose.prod.yml down
+          sudo docker compose -f docker-compose.prod.yml up --build -d
+        EOF
