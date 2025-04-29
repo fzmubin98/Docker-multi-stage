@@ -21,7 +21,7 @@ jobs:
       run: docker compose -f docker-compose.dev.yml build
 
     - name: SSH into EC2 and Deploy
-      uses: appleboy/ssh-action@v1.0.3
+      uses: actions/checkout@v2
       with:
         host: ${{ secrets.DEV_EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
