@@ -31,6 +31,6 @@ jobs:
             sudo git clone --branch dev https://github.com/fzmubin98/Docker-multi-stage.git
             cd Docker-multi-stage
             sudo docker compose -f docker-compose.dev.yml down
-            sudo docker image prune 
+            sudo docker image prune -y
             sudo docker compose -f docker-compose.dev.yml up --build -d
           EOF
