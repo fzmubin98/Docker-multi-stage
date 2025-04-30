@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Item Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- 🌓 Theme toggle switch -->
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
+    <span class="theme-label">Dark Mode</span>
+  </div>
+
+  <div class="container">
+    <h1>Item Manager</h1>
+
+    <form id="addForm">
+      <input type="text" id="itemName" placeholder="Enter item name" required>
+      <button type="submit">Add Item</button>
+    </form>
+
+    <ul id="itemList"></ul>
+  </div>
+
+  <script>
+    const list = document.getElementById('itemList');
+    function createItemElement(item) {
+      const li = document.createElement('li');
+      li.id = `item-${item._id}`;
+      li.classList.add('fade-in');
+      if (item.done) li.classList.add('completed'); // Ensure 'completed' class toggles
+
+      const span = document.createElement('span');
+      span.textContent = item.name;
+
+      const buttonsDiv = document.createElement('div');
+      buttonsDiv.className = 'button-group';
+
+      const doneButton = document.createElement('button');
+      doneButton.textContent = item.done ? 'Undo' : 'Mark as Done';
+      doneButton.className = 'done-btn';
+      doneButton.onclick = () => {
+        item.done = !item.done;
+        updateDoneState(item._id, item.done);
+        li.classList.toggle('completed'); // Toggle strikethrough effect on click
+      };
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.className = 'delete-btn';
+      deleteButton.onclick = () => {
+        li.classList.add('fade-out');
+        setTimeout(() => {
+          fetch(`/items/${item._id}`, { method: 'DELETE' })
+            .then(() => fetchItems()); // Re-fetch items after deleting
+        }, 300);
+      };
+
+      buttonsDiv.appendChild(doneButton);
+      buttonsDiv.appendChild(deleteButton);
+
+      li.appendChild(span);
+      li.appendChild(buttonsDiv);
+      return li;
+    }
+
+    function updateDoneState(id, done) {
+      fetch(`/items/${id}/toggle`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ done })
+      })
+        .then(() => fetchItems());
+    }
+
+    async function fetchItems() {
+      const res = await fetch('/items');
+      const items = await res.json();
+      list.innerHTML = '';
+
+      items.forEach(item => {
+        const li = createItemElement(item);
+        list.appendChild(li);
+      });
+    }
+
+
+    document.getElementById('addForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('itemName').value;
+      await fetch('/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      document.getElementById('itemName').value = '';
+      fetchItems();
+    });
+
+    // 🌗 Theme toggle logic
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle('light-theme');
+    });
+
+    fetchItems();
+  </script>
+</body>
+
+</html>
