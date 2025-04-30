@@ -28,8 +28,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.DEV_EC2_HOST }} << 'EOF'
             sudo ls -la
             sudo rm -rf Docker-multi-stage
-            sudo git clone https://github.com/fzmubin98/Docker-multi-stage.git
-            sudo git checkout dev
+            sudo git clone --branch dev https://github.com/fzmubin98/Docker-multi-stage.git
             cd Docker-multi-stage
             sudo docker compose -f docker-compose.dev.yml down
             sudo docker compose -f docker-compose.dev.yml up --build -d
