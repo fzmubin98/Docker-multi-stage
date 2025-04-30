@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Item Manager</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <!-- 🌓 Theme toggle switch -->
   <div class="theme-toggle">
@@ -39,25 +41,26 @@
       span.textContent = item.name;
 
       const buttonsDiv = document.createElement('div');
+      buttonsDiv.className = 'button-group';
 
       const doneButton = document.createElement('button');
       doneButton.textContent = item.done ? 'Undo' : 'Mark as Done';
       doneButton.className = 'done-btn';
       doneButton.onclick = () => {
-          item.done = !item.done;
-          updateDoneState(item._id, item.done);
-          li.classList.toggle('completed'); // Toggle strikethrough effect on click
+        item.done = !item.done;
+        updateDoneState(item._id, item.done);
+        li.classList.toggle('completed'); // Toggle strikethrough effect on click
       };
 
       const deleteButton = document.createElement('button');
       deleteButton.textContent = 'Delete';
       deleteButton.className = 'delete-btn';
       deleteButton.onclick = () => {
-          li.classList.add('fade-out');
-          setTimeout(() => {
-              fetch(`/items/${item._id}`, { method: 'DELETE' })
-              .then(() => fetchItems()); // Re-fetch items after deleting
-          }, 300);
+        li.classList.add('fade-out');
+        setTimeout(() => {
+          fetch(`/items/${item._id}`, { method: 'DELETE' })
+            .then(() => fetchItems()); // Re-fetch items after deleting
+        }, 300);
       };
 
       buttonsDiv.appendChild(doneButton);
@@ -68,25 +71,25 @@
       return li;
     }
 
-        function updateDoneState(id, done) {
-        fetch(`/items/${id}/toggle`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ done })
-        })
+    function updateDoneState(id, done) {
+      fetch(`/items/${id}/toggle`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ done })
+      })
         .then(() => fetchItems());
-        }
+    }
 
-        async function fetchItems() {
-            const res = await fetch('/items');
-            const items = await res.json();
-            list.innerHTML = '';
+    async function fetchItems() {
+      const res = await fetch('/items');
+      const items = await res.json();
+      list.innerHTML = '';
 
-            items.forEach(item => {
-                const li = createItemElement(item);
-                list.appendChild(li);
-            });
-}
+      items.forEach(item => {
+        const li = createItemElement(item);
+        list.appendChild(li);
+      });
+    }
 
 
     document.getElementById('addForm').addEventListener('submit', async (e) => {
@@ -110,4 +113,5 @@
     fetchItems();
   </script>
 </body>
+
 </html>

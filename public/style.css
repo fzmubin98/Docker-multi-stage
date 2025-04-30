@@ -108,7 +108,9 @@
 
   .completed span {
     text-decoration: line-through;
-    opacity: 0.6;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #070707; /* Adjust color for better visibility */
+    opacity: 0.8; /* Increase opacity for better readability */
   }
   
 
