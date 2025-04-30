@@ -51,10 +51,11 @@
         deleteButton.textContent = 'Delete';
         deleteButton.className = 'delete-btn';
         deleteButton.onclick = () => {
-            li.classList.add('fade-out');
-            setTimeout(() => {
-            deleteItem(item._id);
-            }, 300);
+        li.classList.add('fade-out');
+        setTimeout(() => {
+            fetch(`/items/${item._id}`, { method: 'DELETE' })
+            .then(() => fetchItems()); // Re-fetch items after deleting
+        }, 300);
         };
 
         buttonsDiv.appendChild(doneButton);
@@ -74,31 +75,17 @@
         .then(() => fetchItems());
         }
 
-    async function fetchItems() {
-      const res = await fetch('/items');
-      const items = await res.json();
-      list.innerHTML = '';
+        async function fetchItems() {
+            const res = await fetch('/items');
+            const items = await res.json();
+            list.innerHTML = '';
 
-      items.forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span>${item.name}</span>`;
-        li.classList.add('fade-in');
+            items.forEach(item => {
+                const li = createItemElement(item);
+                list.appendChild(li);
+            });
+}
 
-        const delBtn = document.createElement('button');
-        delBtn.textContent = 'Delete';
-        delBtn.classList.add('delete-btn');
-        delBtn.onclick = async () => {
-          li.classList.add('fade-out');
-          setTimeout(async () => {
-            await fetch(`/items/${item._id}`, { method: 'DELETE' });
-            fetchItems();
-          }, 300); // sync with fade-out duration
-        };
-
-        li.appendChild(delBtn);
-        list.appendChild(li);
-      });
-    }
 
     document.getElementById('addForm').addEventListener('submit', async (e) => {
       e.preventDefault();
