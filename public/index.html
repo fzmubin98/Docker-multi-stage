@@ -1,33 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Item List</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Item Manager</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Item List</h1>
+  <!-- 🌓 Theme toggle switch -->
+  <div class="theme-toggle">
+    <label class="switch">
+      <input type="checkbox" id="themeToggle">
+      <span class="slider"></span>
+    </label>
+    <span class="theme-label">Dark Mode</span>
+  </div>
 
-  <form id="addForm">
-    <input type="text" id="itemName" placeholder="Enter item name" required>
-    <button type="submit">Add Item</button>
-  </form>
+  <div class="container">
+    <h1>Item Manager</h1>
 
-  <ul id="itemList"></ul>
+    <form id="addForm">
+      <input type="text" id="itemName" placeholder="Enter item name" required>
+      <button type="submit">Add Item</button>
+    </form>
+
+    <ul id="itemList"></ul>
+  </div>
 
   <script>
+    const list = document.getElementById('itemList');
+
     async function fetchItems() {
       const res = await fetch('/items');
       const items = await res.json();
-      const list = document.getElementById('itemList');
       list.innerHTML = '';
+
       items.forEach(item => {
         const li = document.createElement('li');
-        li.textContent = item.name + ' ';
+        li.innerHTML = `<span>${item.name}</span>`;
+        li.classList.add('fade-in');
+
         const delBtn = document.createElement('button');
         delBtn.textContent = 'Delete';
+        delBtn.classList.add('delete-btn');
         delBtn.onclick = async () => {
-          await fetch(`/items/${item._id}`, { method: 'DELETE' });
-          fetchItems(); // Refresh
+          li.classList.add('fade-out');
+          setTimeout(async () => {
+            await fetch(`/items/${item._id}`, { method: 'DELETE' });
+            fetchItems();
+          }, 300); // sync with fade-out duration
         };
+
         li.appendChild(delBtn);
         list.appendChild(li);
       });
@@ -43,6 +66,12 @@
       });
       document.getElementById('itemName').value = '';
       fetchItems();
+    });
+
+    // 🌗 Theme toggle logic
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle('light-theme');
     });
 
     fetchItems();
