@@ -237,7 +237,7 @@
     pointer-events: none; /* Make sure it doesn't interfere with other mouse events */
     width: 20px;
     height: 20px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgb(255, 255, 255);
     border-radius: 50%;
     opacity: 0;
     transition: opacity 0.5s, transform 1s ease-out;
