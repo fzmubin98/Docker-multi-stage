@@ -20,8 +20,10 @@ db.once('open', () => console.log("Connected to MongoDB"));
 
 // Schema and Model
 const ItemSchema = new mongoose.Schema({
-  name: String
+  name: String,
+  done: { type: Boolean, default: false }  // Add done field
 });
+
 const Item = mongoose.model('Item', ItemSchema);
 
 // ROUTES
@@ -64,10 +66,6 @@ app.delete('/items/:id', async (req, res) => {
   res.send(`Item ${req.params.id} deleted`);
 });
 
-app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
-});
-
 // Toggle done state
 app.patch('/items/:id/toggle', async (req, res) => {
   const item = await Item.findById(req.params.id);
@@ -75,6 +73,10 @@ app.patch('/items/:id/toggle', async (req, res) => {
   item.done = req.body.done;
   await item.save();
   res.json(item);
+});
+
+app.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`);
 });
 
 
