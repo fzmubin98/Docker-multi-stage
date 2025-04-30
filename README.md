@@ -96,20 +96,6 @@ services:
       - NODE_ENV=development
 ```
 
-Production:
-```
-version: '3.8'
-services:
-  app:
-    build:
-      context: .
-      target: production
-    ports:
-      - "3003:3000"
-    environment:
-      - NODE_ENV=production
-```
-
 ### 2. Node.js Application Setup
 
 A basic Express application serves as the backend.
@@ -178,7 +164,6 @@ docker build -t mynodeapp .
 
 ```bash
 docker-compose -f docker-compose.dev.yml up --build -d
-docker-compose -f docker-compose.prod.yml up --build -d
 ```
 
 **Run the Docker Container:**
