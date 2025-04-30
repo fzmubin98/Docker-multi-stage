@@ -232,3 +232,18 @@
     background-color: #d32f2f;
   }
   
+  .smoke {
+    position: absolute;
+    pointer-events: none; /* Make sure it doesn't interfere with other mouse events */
+    width: 20px;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.5s, transform 1s ease-out;
+    will-change: transform, opacity;
+}
+
+body.dark-theme .smoke {
+    background-color: rgba(220, 220, 220, 0.4); /* Lighter smoke in dark theme */
+}

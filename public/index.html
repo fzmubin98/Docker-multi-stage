@@ -104,6 +104,27 @@
       fetchItems();
     });
 
+    document.addEventListener('mousemove', function(e) {
+      let smoke = document.createElement('div');
+      smoke.className = 'smoke';
+      document.body.appendChild(smoke);
+
+      // Position the smoke where the mouse pointer is
+      smoke.style.left = `${e.pageX - 10}px`;
+      smoke.style.top = `${e.pageY - 10}px`;
+
+      // Animate the smoke rising
+      setTimeout(() => {
+          smoke.style.transform = 'translateY(-100px)';
+          smoke.style.opacity = 0;
+      }, 0);
+
+      // Remove the smoke after animation to clean up the DOM
+      setTimeout(() => {
+          smoke.remove();
+      }, 1000);
+});
+
     // 🌗 Theme toggle logic
     const toggle = document.getElementById('themeToggle');
     toggle.addEventListener('change', () => {
