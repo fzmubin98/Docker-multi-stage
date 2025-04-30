@@ -1,6 +1,4 @@
 const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
-
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser'); // For parsing POST/PUT bodies
@@ -9,6 +7,7 @@ const port = 3000;
 
 
 // Middleware
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
