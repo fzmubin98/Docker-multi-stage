@@ -106,7 +106,7 @@
     font-size: 18px;
   }
 
-  li.completed span {
+  .completed span {
     text-decoration: line-through;
     opacity: 0.6;
   }

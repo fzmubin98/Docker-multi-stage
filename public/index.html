@@ -30,41 +30,43 @@
   <script>
     const list = document.getElementById('itemList');
     function createItemElement(item) {
-        const li = document.createElement('li');
-        li.classList.add('fade-in');
-        if (item.done) li.classList.add('done');
+      const li = document.createElement('li');
+      li.id = `item-${item._id}`;
+      li.classList.add('fade-in');
+      if (item.done) li.classList.add('completed'); // Ensure 'completed' class toggles
 
-        const span = document.createElement('span');
-        span.textContent = item.name;
+      const span = document.createElement('span');
+      span.textContent = item.name;
 
-        const buttonsDiv = document.createElement('div');
+      const buttonsDiv = document.createElement('div');
 
-        const doneButton = document.createElement('button');
-        doneButton.textContent = item.done ? 'Undo' : 'Mark as Done';
-        doneButton.className = 'done-btn';
-        doneButton.onclick = () => {
-            item.done = !item.done;
-            updateDoneState(item._id, item.done);
-        };
+      const doneButton = document.createElement('button');
+      doneButton.textContent = item.done ? 'Undo' : 'Mark as Done';
+      doneButton.className = 'done-btn';
+      doneButton.onclick = () => {
+          item.done = !item.done;
+          updateDoneState(item._id, item.done);
+          li.classList.toggle('completed'); // Toggle strikethrough effect on click
+      };
 
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Delete';
-        deleteButton.className = 'delete-btn';
-        deleteButton.onclick = () => {
-        li.classList.add('fade-out');
-        setTimeout(() => {
-            fetch(`/items/${item._id}`, { method: 'DELETE' })
-            .then(() => fetchItems()); // Re-fetch items after deleting
-        }, 300);
-        };
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.className = 'delete-btn';
+      deleteButton.onclick = () => {
+          li.classList.add('fade-out');
+          setTimeout(() => {
+              fetch(`/items/${item._id}`, { method: 'DELETE' })
+              .then(() => fetchItems()); // Re-fetch items after deleting
+          }, 300);
+      };
 
-        buttonsDiv.appendChild(doneButton);
-        buttonsDiv.appendChild(deleteButton);
+      buttonsDiv.appendChild(doneButton);
+      buttonsDiv.appendChild(deleteButton);
 
-        li.appendChild(span);
-        li.appendChild(buttonsDiv);
-        return li;
-        }
+      li.appendChild(span);
+      li.appendChild(buttonsDiv);
+      return li;
+    }
 
         function updateDoneState(id, done) {
         fetch(`/items/${id}/toggle`, {
