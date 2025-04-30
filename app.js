@@ -68,4 +68,14 @@ app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
 
+// Toggle done state
+app.patch('/items/:id/toggle', async (req, res) => {
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).send('Item not found');
+  item.done = req.body.done;
+  await item.save();
+  res.json(item);
+});
+
+
 module.exports = app;
