@@ -106,9 +106,15 @@
     font-size: 18px;
   }
 
+  li.completed span {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+  
+
   .button-group {
     display: flex;
-    gap: 8px;
+    gap: 10px;
   }  
   
   /* DELETE BUTTON */
