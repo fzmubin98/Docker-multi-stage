@@ -1,4 +1,4 @@
-# 🐳 Dockerized Node.js + MongoDB App with GitHub Actions Deployment
+# 🐳 Dockerized Node.js + MongoDB App with GitHub Actions Deployment with AWS Lambda and Event Bridge for Scheduling
 
 This project is a simple Node.js app that connects to MongoDB and is fully Dockerized. It includes a GitHub Actions workflow that deploys the app to an AWS EC2 instance.
 
@@ -279,6 +279,16 @@ It is possible to add, Mark as done and delete Items
 ```
 
 ---
+
+## AWS Lambda
+```python
+import boto3
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2', region_name='us-east-1')
+    instances = ['instance-1', 'Instance-2']  # Add your dev and prod instance IDs
+    ec2.start_instances(InstanceIds=instances)
+```
 
 ## 🧹 Clean Up
 
