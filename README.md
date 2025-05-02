@@ -1,26 +1,57 @@
-This README provides a comprehensive overview of the steps taken to dockerize a simple Node.js application using Express. The objective was to optimize Docker images for production through multi-stage builds, ensuring that the final image is secure and lightweight.
 
-## Project Overview
+This project is a simple Node.js app that connects to MongoDB and is fully Dockerized. It includes a GitHub Actions workflow that deploys the app to an AWS EC2 instance.
 
-The project uses a multi-stage Dockerfile to separate the building and running stages of the application. This approach minimizes the size of the final Docker image by excluding development dependencies and build tools from the production image.
+---
 
-### Key Objectives:
+## 📁 Project Structure
 
-1. **Multi-Stage Build**: Utilize multi-stage builds to keep the final production image as clean and minimal as possible.
-2. **Security**: Run the application as a non-root user in the container to enhance security.
-3. **Efficiency**: Use Docker's caching mechanism effectively to speed up builds.
-4. **Health Checks**: Include a health check endpoint to ensure the application is running correctly.
+```
+.
+├── .github
+│   └── workflows
+│       └── dev.yaml          # GitHub Actions workflow for CI/CD
+├── public
+│   ├── index.html            # Static HTML file served by Express
+│   └── style.css             # CSS file linked from index.html
+├── app.js                    # Main Express application
+├── Dockerfile                # Docker configuration for the app
+├── docker-compose.yml        # Compose file for multi-container setup
+├── package.json              # Node.js metadata and dependencies
+├── package-lock.json         # Exact dependency versions
+├── README.md                 # Project documentation
 
-## Components
+```
 
-### 1. Dockerfile
+---
 
-The `Dockerfile` defines two stages: `builder` and `production`.
+## 🧑‍💻 Run Locally
 
-- **Builder Stage**: Uses a full `node:16` base image to install dependencies and build the application (if any).
-- **Production Stage**: Uses `node:16-alpine`, a minimal base image, copies only necessary artifacts from the builder stage, sets environment variables, exposes the correct port, and specifies how to run the application.
+### Prerequisites
 
-#### Dockerfile Breakdown
+- Docker
+    
+- Docker Compose
+    
+
+### Steps
+
+```bash
+git clone <repo-url>
+cd <repo-directory>
+docker-compose up --build
+```
+
+- App runs on: `http://localhost:3000`
+    
+- MongoDB runs on: `mongodb://localhost:27017`
+    
+
+---
+
+## 🛠️ Files Overview
+
+### `Dockerfile`
+
 ```Dockerfile
 # Stage 1: Builder
 FROM node:16 AS builder
@@ -77,122 +108,178 @@ USER appuser
 CMD ["npm", "start"]
 ```
 
-**Docker Compose**
+### `docker-compose.yml`
 
-Development:
-```
-version: '3.8'
+```yaml
+version: '3'
 services:
   app:
-    build:
-      context: .
-      target: development
-    volumes:
-      - .:/app
-      - /app/node_modules
+    build: .
     ports:
       - "3000:3000"
+    depends_on:
+      - mongo
     environment:
-      - NODE_ENV=development
-```
+      - MONGO_URL=mongodb://mongo:27017/test
 
-Production:
-```
-version: '3.8'
-services:
-  app:
-    build:
-      context: .
-      target: production
+  mongo:
+    image: mongo:6
     ports:
-      - "3003:3000"
-    environment:
-      - NODE_ENV=production
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
 ```
 
-### 2. Node.js Application Setup
+---
 
-A basic Express application serves as the backend.
+## 🚀 Deployment
 
-#### Key Files:
+### Prerequisites
 
-- **app.js**: The main server file with Express setup.
-- **package.json**: Contains metadata about the project, scripts for building and starting the application, and dependencies.
+- AWS EC2 instance (Ubuntu recommended)
+    
+- Docker + Docker Compose installed on EC2
+    
+- SSH key pair to connect
+    
 
-#### Basic Express Server (`app.js`)
+### Deployment Steps
 
-```javascript
-const express = require('express');
-const app = express();
-const port = 3000;
+1. Add EC2 IP and key to GitHub Secrets:
+    
+- `DEV_EC2_HOST`: Your DEV EC2 instance’s public IP or DNS
+    
+- `EC2_SSH_KEY`: Your private key to connect to the EC2 instance (in PEM format)
+    
+- `EC2_USER`: EC2 Host name e.g: ubuntu
+    
+        
+1. GitHub Action will:
+    
+    - Build the Docker image
+        
+    - Copy files to EC2
+        
+    - Rebuild and restart containers on the server
+        
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+---
 
-// Health check route
-app.get('/healthcheck', (req, res) => {
-  res.status(200).send('OK');
-});
+## 📦 GitHub Actions – CI/CD Workflow
 
-app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
-});
+This project uses a GitHub Actions workflow to automate building and deploying the Dockerized Node.js + MongoDB application to an AWS EC2 instance.
 
-module.exports = app; // Export for testing
+### Workflow File: `.github/workflows/dev.yaml`
+
+```yaml
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: docker-compose build
+
+      - name: Copy files to EC2 via SCP
+        run: |
+          scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} -r . ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app
+
+      - name: SSH into EC2 and restart containers
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ubuntu/app
+            docker-compose down
+            docker-compose up -d --build
+          EOF
 ```
-### 3. Health Check Implementation
 
-Implemented a health check route to monitor the application's status via the Docker container.
-#### Health Check 
-```javascript
-const http = require('http');
+### Workflow File: `.github/workflows/prod.yaml`
+```yaml
+name: Deploy to Production EC2
 
-  
+on:
+  workflow_dispatch:
 
-http.get({host:'localhost', path: '/healthcheck', port: '3000'}, (res) => {
+jobs:
+  build-and-deploy:
+    name: Build and Deploy Prod
+    runs-on: ubuntu-latest
 
-  process.exitCode = res.statusCode === 200 ? 0 : 1;
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
 
-  process.exit();
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-}).on('error', (err) => {
+    - name: Build Dev Docker Compose
+      run: docker compose -f docker-compose.prod.yml build
 
-  console.error(err);
-
-  process.exit(1);
-
-});
+    - name: SSH into EC2 and Deploy
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+        chmod 600 private_key.pem
+        ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.PROD_EC2_HOST }} << 'EOF'
+          sudo ls -la
+          sudo rm -rf Docker-multi-stage
+          sudo git clone https://github.com/fzmubin98/Docker-multi-stage.git
+          cd Docker-multi-stage
+          sudo docker compose -f docker-compose.prod.yml down
+          sudo docker image prune -y
+          sudo docker compose -f docker-compose.prod.yml up --build -d
+        EOF
 ```
-***package.json***
 
+### 🔐 Secrets Required
 
-### 4. Setup Instructions
+Set the following GitHub Secrets:
 
-**Build the Docker Image:**
+- `EC2_SSH_KEY`: Your private key to connect to the EC2 instance (in PEM format)
+    
+- `EC2_USER`: EC2 Host name e.g: ubuntu
+    
+- `PROD_EC2_HOST`: Your Prod EC2 instance’s public IP or DNS
+
+---
+
+## 🧪 Test App
+
 ```bash
-docker build -t mynodeapp .
+curl http://localhost:3000
 ```
 
-**Build the Docker Image by Stages**
+Expected output:
+
+```
+Hello from Node.js!
+```
+
+---
+
+## 🧹 Clean Up
 
 ```bash
-docker-compose -f docker-compose.dev.yml up --build -d
-docker-compose -f docker-compose.prod.yml up --build -d
+docker-compose down -v
 ```
 
-**Run the Docker Container:**
-```bash
-docker run -p 3000:3000 mynodeapp
-```
-### 5. Debugging and Validation
+---
 
-Ensure each step functions as expected:
+## 📃 License
 
-- Verify local running of the Express server.
-- Check Docker build logs for potential errors during the multi-stage builds.
-- Test the running Docker container by accessing the exposed endpoints.
-
-## Conclusion
-
-This project demonstrates an efficient way to dockerize a Node.js application for production environments. By leveraging Docker's multi-stage build feature, we maintain smaller, more secure images that are tailored for production use while ensuring that all development and build tools do not make it into the final image.
+MIT
