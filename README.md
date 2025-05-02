@@ -42,9 +42,9 @@ cd <repo-directory>
 docker-compose up --build
 ```
 
-- App runs on: `http://localhost:3000`
+- App runs on: `http://localhost:3000` or `http://IP:3000`
     
-- MongoDB runs on: `mongodb://localhost:27017`
+- MongoDB runs on: `mongodb://localhost:27017` or `http://IP:27017`
     
 
 ---
