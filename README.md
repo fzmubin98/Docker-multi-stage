@@ -298,7 +298,7 @@ import boto3
 
 def lambda_handler(event, context):
     ec2 = boto3.client('ec2', region_name='us-east-1')
-    instances = ['i-023c7ed14abc33d42', 'i-0c225974974ac0b76']  # Add your dev and prod instance IDs
+    instances = ['instance-1', 'instance-2']  # Add your dev and prod instance IDs
     ec2.stop_instances(InstanceIds=instances)
 ```
 
