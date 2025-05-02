@@ -109,7 +109,7 @@ USER appuser
 CMD ["npm", "start"]
 ```
 
-### `docker-compose.yml`
+### `docker-compose.prod.yml`
 
 ```yaml
 version: '3.8'
@@ -303,6 +303,9 @@ def lambda_handler(event, context):
 ```
 
 ## AWS EventBridge
+**Scheduling**
+![alt text](image.png)
+
 **Start Function**
 ![alt text](image-2.png)
 
