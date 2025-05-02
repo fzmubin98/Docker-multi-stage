@@ -1,36 +1,36 @@
-name: Deploy to Development EC2
+# name: Deploy to Development EC2
 
-on:
-  push:
-    branches:
-      - dev
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - dev
+#   workflow_dispatch:
 
-jobs:
-  build-and-deploy:
-    name: Build and Deploy Dev
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-deploy:
+#     name: Build and Deploy Dev
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout source
+#         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
 
-      - name: Build Dev Docker Compose
-        run: docker compose -f docker-compose.dev.yml build
+#       - name: Build Dev Docker Compose
+#         run: docker compose -f docker-compose.dev.yml build
 
-      - name: SSH into EC2 and Deploy
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.DEV_EC2_HOST }} << 'EOF'
-            sudo ls -la
-            sudo rm -rf Docker-multi-stage
-            sudo git clone --branch dev https://github.com/fzmubin98/Docker-multi-stage.git
-            cd Docker-multi-stage
-            sudo docker compose -f docker-compose.dev.yml down
-            sudo docker image prune -y
-            sudo docker compose -f docker-compose.dev.yml up --build -d
-          EOF
+#       - name: SSH into EC2 and Deploy
+#         run: |
+#           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+#           chmod 600 private_key.pem
+#           ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.DEV_EC2_HOST }} << 'EOF'
+#             sudo ls -la
+#             sudo rm -rf Docker-multi-stage
+#             sudo git clone --branch dev https://github.com/fzmubin98/Docker-multi-stage.git
+#             cd Docker-multi-stage
+#             sudo docker compose -f docker-compose.dev.yml down
+#             sudo docker image prune -y
+#             sudo docker compose -f docker-compose.dev.yml up --build -d
+#           EOF
