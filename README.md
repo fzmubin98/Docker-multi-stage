@@ -280,6 +280,38 @@ It is possible to add, Mark as done and delete elements
 
 ---
 
+## AWS Lambda
+
+**Start Function**
+```python
+import boto3
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2', region_name='us-east-1')
+    instances = ['instance-1', 'Instance-2']  # Add your dev and prod instance IDs
+    ec2.start_instances(InstanceIds=instances)
+```
+
+**Stop Function**
+```python
+import boto3
+
+def lambda_handler(event, context):
+    ec2 = boto3.client('ec2', region_name='us-east-1')
+    instances = ['instance-1', 'instance-2']  # Add your dev and prod instance IDs
+    ec2.stop_instances(InstanceIds=instances)
+```
+
+## AWS EventBridge
+**Scheduling**
+![alt text](image.png)
+
+**Start Function**
+![alt text](image-2.png)
+
+**Stop Function**
+![alt text](image-1.png)
+
 ## 🧹 Clean Up
 
 ```bash
