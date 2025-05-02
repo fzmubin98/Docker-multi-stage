@@ -1,3 +1,4 @@
+# 🐳 Dockerized Node.js + MongoDB App with GitHub Actions Deployment
 
 This project is a simple Node.js app that connects to MongoDB and is fully Dockerized. It includes a GitHub Actions workflow that deploys the app to an AWS EC2 instance.
 
