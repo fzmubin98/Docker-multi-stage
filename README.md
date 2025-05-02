@@ -112,26 +112,29 @@ CMD ["npm", "start"]
 ### `docker-compose.yml`
 
 ```yaml
-version: '3'
+version: '3.8'
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
+    environment:
+      - NODE_ENV=development
     depends_on:
       - mongo
-    environment:
-      - MONGO_URL=mongodb://mongo:27017/test
-
   mongo:
-    image: mongo:6
+    image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db
-
+      - mongodb_data:/data/db
 volumes:
-  mongo-data:
+  mongodb_data:
 ```
 
 ---
@@ -176,37 +179,41 @@ This project uses a GitHub Actions workflow to automate building and deploying t
 ### Workflow File: `.github/workflows/dev.yaml`
 
 ```yaml
-name: Deploy to EC2
+name: Deploy to Development EC2
 
 on:
   push:
     branches:
-      - main
+      - dev
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
+    name: Build and Deploy Dev
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker-compose build
+      - name: Build Dev Docker Compose
+        run: docker compose -f docker-compose.dev.yml build
 
-      - name: Copy files to EC2 via SCP
+      - name: SSH into EC2 and Deploy
         run: |
-          scp -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} -r . ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app
-
-      - name: SSH into EC2 and restart containers
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.EC2_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ubuntu/app
-            docker-compose down
-            docker-compose up -d --build
+          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.DEV_EC2_HOST }} << 'EOF'
+            sudo ls -la
+            sudo rm -rf Docker-multi-stage
+            sudo git clone --branch dev https://github.com/fzmubin98/Docker-multi-stage.git
+            cd Docker-multi-stage
+            sudo docker compose -f docker-compose.dev.yml down
+            sudo docker image prune -y
+            sudo docker compose -f docker-compose.dev.yml up --build -d
           EOF
 ```
 
@@ -268,7 +275,7 @@ curl http://localhost:3000
 Expected output:
 
 ```
-Hello from Node.js!
+It is possible to add, Mark as done and delete elements
 ```
 
 ---
