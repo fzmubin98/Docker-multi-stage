@@ -272,6 +272,7 @@ Set the following GitHub Secrets:
 curl http://localhost:3000
 ```
 
+
 Expected output:
 
 ```
